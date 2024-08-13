@@ -9,7 +9,7 @@ interface Task {
 
 export default function Tasks() {
     const [tasks, setTasks] = useState<Task[]>([]);
-    const [title, setTitle] = useState<string>("");
+    const [titulos, setTitulos] = useState<string>("");
     const router = useRouter();
 
     useEffect(() => {
@@ -24,7 +24,7 @@ export default function Tasks() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ titulo: title }),
+            body: JSON.stringify({ titulo: titulos }),
         });
 
         const newTask: Task = await response.json();
@@ -35,21 +35,26 @@ export default function Tasks() {
         <div>
             <h2 className='text-center text-2xl font-bold mb-6 p-2'>Minhas Tasks</h2>
             <div className="flex flex-row gap-6 justify-center">
-            <input
-                className="w-80 h-10 p-1 text-sm rounded border-gray-900 border-2 outline-black"
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Titulo da task"
-            />
-            <button className="py-2 px-4 text-sm text-white rounded-lg bg-indigo-500 hover:bg-indigo-400 transition duration-200" 
-            onClick={createTask}>Criar Task</button>
+                <input
+                    className="w-80 h-10 p-1 text-sm rounded border-gray-900 border-2 outline-black"
+                    type="text"
+                    value={titulos}
+                    onChange={(e) => setTitulos(e.target.value)}
+                    placeholder="Titulo da task"
+                />
+                <button className="py-2 px-4 text-sm text-white rounded-lg bg-indigo-500 hover:bg-indigo-400 transition duration-200"
+                    onClick={createTask}>Criar Task</button>
             </div>
             <ul className='flex flex-col justify-center items-center mt-10'>
-                {tasks.map(task => (
-                    <li key={task.id} onClick={() => router.push('/'+task.id)}>{task.titulo}</li>
-                ))}
+                {tasks.length > 0 ? (
+                    tasks.map(task => (
+                        <li key={task.id} onClick={() => router.push('/' + task.id)}>{task.titulo}</li>
+                    ))
+                ) : (
+                    <p>Nenhuma task encontrada</p>
+                )}
             </ul>
+
         </div>
     );
 }
