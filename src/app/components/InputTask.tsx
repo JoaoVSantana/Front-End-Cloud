@@ -1,34 +1,31 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { useRouter } from "next/navigation";
+import { createTask, fetchTasks } from '../api';
+import React from 'react';
 
 interface Task {
     id: number;
     titulo: string;
 }
 
-export default function Tasks() {
+export default function InputTask() {
     const [tasks, setTasks] = useState<Task[]>([]);
-    const [titulos, setTitulos] = useState<string>("");
+    const [titulo, settitulo] = useState<string>("");
     const router = useRouter();
 
     useEffect(() => {
-        fetch('http://localhost:8082/task')
-            .then(response => response.json())
+        fetchTasks()
             .then(data => setTasks(data));
     }, []);
 
-    const createTask = async () => {
-        const response = await fetch('http://localhost:8082/task', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ titulo: titulos }),
-        });
-
-        const newTask: Task = await response.json();
-        setTasks([...tasks, newTask]);
+    const handleCreateTask = async () => {
+        try {
+            const newTask = await createTask(titulo);
+            setTasks([...tasks, newTask]);
+        } catch (error) {
+            console.error('Erro ao criar a task:', error);
+        }
     };
 
     return (
@@ -38,12 +35,12 @@ export default function Tasks() {
                 <input
                     className="w-80 h-10 p-1 text-sm rounded border-gray-900 border-2 outline-black"
                     type="text"
-                    value={titulos}
-                    onChange={(e) => setTitulos(e.target.value)}
+                    value={titulo}
+                    onChange={(e) => settitulo(e.target.value)}
                     placeholder="Titulo da task"
                 />
                 <button className="py-2 px-4 text-sm text-white rounded-lg bg-indigo-500 hover:bg-indigo-400 transition duration-200"
-                    onClick={createTask}>Criar Task</button>
+                    onClick={handleCreateTask}>Criar Task</button>
             </div>
             <ul className='flex flex-col justify-center items-center mt-10'>
                 {tasks.length > 0 ? (

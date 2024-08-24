@@ -1,6 +1,8 @@
 'use client'
 import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { fetchImages, uploadImage } from '../api';
+import React from 'react';
 
 export default function UploadFile() {
     const [file, setFile] = useState<File | null>(null);
@@ -11,11 +13,10 @@ export default function UploadFile() {
     console.log(id)
 
     useEffect(() => {
-            fetch(`http://localhost:8082/aws/imagens/${id.taskId}`)
-                .then(response => response.json())
-                .then(data => setImages(data))
-                .catch(error => console.error('Erro ao carregar as imagens:', error));
-    }, [id.taskId]);  
+        fetchImages(id.taskId)
+        .then(data => setImages(data))
+        .catch(error => console.error('Erro ao carregar as imagens:', error));
+    }, [id.taskId]);    
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -31,22 +32,13 @@ export default function UploadFile() {
             return;
         }
 
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const response = await fetch(`http://localhost:8082/aws/${id.taskId}`, {
-            method: 'POST',
-            body: formData,
-        });
-
-        if (response.ok) {
+        try {
+            await uploadImage(id.taskId, file);
             alert('Imagem enviada com sucesso');
-            // Recarrega as imagens após o upload bem-sucedido
-            fetch(`http://localhost:8082/aws/imagens/${id.taskId}`)
-                .then(response => response.json())
+            fetchImages(id.taskId)
                 .then(data => setImages(data))
                 .catch(error => console.error('Erro ao carregar as imagens:', error));
-        } else {
+        } catch (error) {
             alert('Erro ao enviar a imagem');
         }
     };
